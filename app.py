@@ -1,8 +1,5 @@
-import joblib
 from fastapi import FastAPI
 from pydantic import BaseModel
-
-model = joblib.load("model.pkl")
 
 app = FastAPI()
 
@@ -13,7 +10,14 @@ class Input(BaseModel):
 def home():
     return {"message": "Model API is running"}
 
+def get_result(marks: int):
+    # Real college rule: 40+ = Pass
+    return {"marks": marks, "pass": 1 if marks >= 40 else 0}
+
 @app.post("/predict")
 def predict(data: Input):
-    result = model.predict([[data.marks]])
-    return {"marks": data.marks, "pass": int(result[0])}
+    return get_result(data.marks)
+
+@app.get("/predict")
+def predict_get(marks: int):
+    return get_result(marks)
